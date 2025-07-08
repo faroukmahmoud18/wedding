@@ -15,9 +15,18 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        // It's often good practice to ensure a specific user exists if your
+        // other seeders might rely on it, or create it within those seeders.
+        // The MarketplaceSeeder creates its own 'testuser@example.com' if needed.
+        // If you want this one from DatabaseSeeder to be the primary, adjust MarketplaceSeeder.
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+        ]);
+
+        $this->call([
+            MarketplaceSeeder::class,
+            // Add other seeder classes here
         ]);
     }
 }
