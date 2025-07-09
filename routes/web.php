@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\VendorController;
+use App\Http\Controllers\SearchController; // Added SearchController
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,9 @@ use App\Http\Controllers\VendorController;
 // Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Search
+Route::get('/search', [SearchController::class, 'search'])->name('search');
+
 // Service category listing
 Route::get('/services/category/{category}', [ServiceController::class, 'category'])->name('services.category');
 
@@ -34,30 +38,49 @@ Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.st
 Route::get('/booking/confirmation', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
 
 // Admin Dashboard
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(function () { // Added auth and verified middleware
-    Route::get('/dashboard', [HomeController::class, 'adminDashboard'])->name('dashboard');
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']) // Added 'admin' middleware
+    ->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
-    // Vendor CRUD
-    Route::resource('vendors', VendorController::class)->except(['show']);
+        // Vendor Management
+        Route::resource('vendors', App\Http\Controllers\Admin\VendorController::class);
+        Route::patch('vendors/{vendor}/approve', [App\Http\Controllers\Admin\VendorController::class, 'approve'])->name('vendors.approve');
+        Route::patch('vendors/{vendor}/suspend', [App\Http\Controllers\Admin\VendorController::class, 'suspend'])->name('vendors.suspend');
+        Route::patch('vendors/{vendor}/unsuspend', [App\Http\Controllers\Admin\VendorController::class, 'unsuspend'])->name('vendors.unsuspend');
 
-    // Service CRUD (admin oversight)
-    Route::resource('services', ServiceController::class)->except(['show', 'category', 'index']); // index is covered by category
+
+        // Service Management
+        Route::resource('services', App\Http\Controllers\Admin\ServiceController::class)->except(['create', 'store']); // Admin edits, not creates from scratch typically
+        Route::patch('services/{service}/approve', [App\Http\Controllers\Admin\ServiceController::class, 'approve'])->name('services.approve');
+        Route::patch('services/{service}/reject', [App\Http\Controllers\Admin\ServiceController::class, 'reject'])->name('services.reject');
+        Route::patch('services/{service}/toggle-live', [App\Http\Controllers\Admin\ServiceController::class, 'toggleLive'])->name('services.toggleLive');
+
+        // Category Management
+        Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class);
+
+        // Potentially other admin routes: Bookings, Reviews, Settings etc.
+        // Route::get('bookings', [App\Http\Controllers\Admin\BookingController::class, 'index'])->name('bookings.index');
+        // Route::resource('reviews', App\Http\Controllers\Admin\ReviewController::class)->only(['index', 'edit', 'update', 'destroy']);
 });
 
 // Vendor Dashboard
-Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'verified'])->group(function () { // Added auth and verified middleware
-    Route::get('/dashboard', [VendorController::class, 'dashboard'])->name('dashboard'); // Vendor specific dashboard
+Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'verified', 'vendor']) // Ensure 'vendor' middleware exists
+    ->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\Vendor\DashboardController::class, 'index'])->name('dashboard');
 
-    // Services CRUD for vendors (managing their own services)
-    // Assuming a vendor can only manage their own services, policy/auth checks will be needed in the controller.
-    Route::resource('services', ServiceController::class)->names([
-        'index' => 'services.index',
-        'create' => 'services.create',
-        'store' => 'services.store',
-        'edit' => 'services.edit',
-        'update' => 'services.update',
-        'destroy' => 'services.destroy',
-    ])->except(['show', 'category']); // 'show' is public, 'category' is a general listing
+        // Vendor's own Service Management
+        Route::resource('services', App\Http\Controllers\Vendor\ServiceController::class);
+        // Add any custom actions for vendor services if needed, e.g., duplicate, unpublish (distinct from admin's is_live)
+        // Route::post('services/{service}/duplicate', [App\Http\Controllers\Vendor\ServiceController::class, 'duplicate'])->name('services.duplicate');
+
+        // Vendor's Booking Management
+        Route::get('bookings', [App\Http\Controllers\Vendor\BookingController::class, 'index'])->name('bookings.index');
+        Route::get('bookings/{booking}', [App\Http\Controllers\Vendor\BookingController::class, 'show'])->name('bookings.show');
+        Route::patch('bookings/{booking}/status', [App\Http\Controllers\Vendor\BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+
+        // Vendor Profile Management (Example, if not handled by a generic user profile system)
+        // Route::get('profile', [App\Http\Controllers\Vendor\ProfileController::class, 'edit'])->name('profile.edit');
+        // Route::put('profile', [App\Http\Controllers\Vendor\ProfileController::class, 'update'])->name('profile.update');
 });
 
 // Auth routes - keep them if you are using Laravel Breeze/Jetstream for auth scaffolding

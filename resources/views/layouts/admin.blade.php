@@ -70,8 +70,13 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ Route::is('admin.services.*') ? 'active' : '' }}" href="#"> {{-- Replace # with route('admin.services.index') when ready --}}
+                        <a class="nav-link {{ Route::is('admin.services.*') ? 'active' : '' }}" href="{{ route('admin.services.index') }}">
                             @lang('Manage Services')
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::is('admin.categories.*') ? 'active' : '' }}" href="{{ route('admin.categories.index') }}">
+                            @lang('Manage Categories')
                         </a>
                     </li>
                     {{-- Add more admin navigation links here: Bookings, Reviews, Users etc. --}}
@@ -103,7 +108,8 @@
                     <ul class="nav flex-column">
                          <li class="nav-item"><a class="nav-link {{ Route::is('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">@lang('Dashboard')</a></li>
                          <li class="nav-item"><a class="nav-link {{ Route::is('admin.vendors.*') ? 'active' : '' }}" href="{{ route('admin.vendors.index') }}">@lang('Manage Vendors')</a></li>
-                         <li class="nav-item"><a class="nav-link" href="#">@lang('Manage Services')</a></li>
+                         <li class="nav-item"><a class="nav-link {{ Route::is('admin.services.*') ? 'active' : '' }}" href="{{ route('admin.services.index') }}">@lang('Manage Services')</a></li>
+                         <li class="nav-item"><a class="nav-link {{ Route::is('admin.categories.*') ? 'active' : '' }}" href="{{ route('admin.categories.index') }}">@lang('Manage Categories')</a></li>
                          <li class="nav-item mt-auto"><a class="nav-link" href="{{ route('home') }}" target="_blank">@lang('View Main Site')</a></li>
                          <li class="nav-item"><a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form-admin-mobile').submit();">@lang('Logout')</a><form id="logout-form-admin-mobile" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form></li>
                     </ul>

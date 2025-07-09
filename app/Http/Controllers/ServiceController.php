@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Service; // Assuming Service model will be created
+use App\Models\Service;
+use App\Models\Category; // Added Category model
 use Illuminate\Http\Request;
+use Illuminate\Support\Str; // Added Str facade
 
 /**
  * ServiceController manages the display of services to users (category listing, individual service details)
@@ -14,59 +16,66 @@ class ServiceController extends Controller
     /**
      * Display a listing of services by category.
      *
-     * @param string $category
+     * @param string $categorySlug
      * @return \Illuminate\View\View
      */
     public function category(Request $request, $categorySlug)
     {
-        $query = Service::with('vendor', 'images')->live(); // Use the 'live' scope
+        $currentCategory = null;
+        $query = Service::with('vendor', 'images', 'category')->live(); // Use the 'live' scope, include category relationship
 
         if ($categorySlug !== 'all') {
-            $query->where('category', $categorySlug);
+            $currentCategory = Category::where('slug', $categorySlug)->firstOrFail();
+            $query->where('category_id', $currentCategory->id);
         }
 
-        // Basic filtering examples (can be expanded)
-        if ($request->filled('price_from')) {
-            $query->where('price_from', '>=', $request->input('price_from'));
+        // Filtering
+        $location = $request->input('location');
+        $min_price = $request->input('min_price');
+        $max_price = $request->input('max_price');
+
+        if ($location) {
+            $query->where('location_text', 'LIKE', "%{$location}%");
         }
-        if ($request->filled('price_to')) {
-            $query->where('price_to', '<=', $request->input('price_to'));
+        if ($min_price) {
+            $query->where('price', '>=', $min_price); // Assuming 'price' field exists
         }
-        if ($request->filled('location_filter')) {
-            // This is a simple location text search, could be more advanced
-            $query->where('location_text', 'LIKE', '%' . $request->input('location_filter') . '%');
+        if ($max_price) {
+            $query->where('price', '<=', $max_price); // Assuming 'price' field exists
         }
         // Add rating filter if Review model and relationships are set up for average rating
         // e.g. if ($request->filled('min_rating')) { $query->whereHas('reviews', fn($q) => $q->havingRaw('AVG(rating) >= ?', [$request->input('min_rating')])); }
 
-
         // Sorting
-        $sortBy = $request->input('sort_by', 'default');
-        switch ($sortBy) {
+        $sort_by = $request->input('sort_by', 'new_first'); // Default to new_first
+        switch ($sort_by) {
             case 'price_asc':
-                $query->orderBy('price_from', 'asc');
+                $query->orderBy('price', 'asc'); // Assuming 'price' field
                 break;
             case 'price_desc':
-                $query->orderBy('price_from', 'desc'); // or price_to
+                $query->orderBy('price', 'desc'); // Assuming 'price' field
                 break;
-            case 'rating_desc':
-                // Requires average rating calculation, e.g., with a subquery or a dedicated column
-                // $query->orderBy('average_rating', 'desc'); // Placeholder
-                $query->orderBy('created_at', 'desc'); // Fallback
-                break;
+            case 'new_first':
             default:
                 $query->orderBy('created_at', 'desc');
         }
 
-        $services = $query->paginate(12)->appends($request->query()); // 12 items per page, append query string for filters
+        $services = $query->paginate(12)->appends($request->query());
 
-        $categoryTitle = ($categorySlug === 'all') ? __('All Services') : Str::title(str_replace('-', ' ', $categorySlug));
+        $categoryName = $currentCategory ? $currentCategory->name : __('All Services');
+        $allCategories = Category::orderBy('name')->get(); // For filter dropdown
 
         return view('services.category', [
             'services' => $services,
-            'category' => $categorySlug, // The slug
-            'categoryTitle' => $categoryTitle, // For display
-            'filters' => $request->all() // Pass current filters back to the view
+            'currentCategory' => $currentCategory,
+            'categoryName' => $categoryName, // For display
+            'categories' => $allCategories, // For filter dropdown
+            'categorySlug' => $categorySlug, // Pass slug for form actions
+            // Pass individual filter values for easy access in the view
+            'location' => $location,
+            'min_price' => $min_price,
+            'max_price' => $max_price,
+            'sort_by' => $sort_by,
         ]);
     }
 
