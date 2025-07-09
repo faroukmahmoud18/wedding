@@ -79,8 +79,12 @@
                             @lang('My Services')
                         </a>
                     </li>
-                    {{-- Add more vendor navigation links: Bookings for their services, Profile settings etc. --}}
-                    {{-- <li class="nav-item"><a class="nav-link" href="#">@lang('My Bookings')</a></li> --}}
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::is('vendor.bookings.*') ? 'active' : '' }}" href="{{ route('vendor.bookings.index') }}">
+                            @lang('My Bookings')
+                        </a>
+                    </li>
+                    {{-- Add more vendor navigation links: Profile settings etc. --}}
                     {{-- <li class="nav-item"><a class="nav-link" href="#">@lang('Profile Settings')</a></li> --}}
 
                     <li class="nav-item mt-auto">
@@ -111,6 +115,7 @@
                     <ul class="nav flex-column">
                          <li class="nav-item"><a class="nav-link {{ Route::is('vendor.dashboard') ? 'active' : '' }}" href="{{ route('vendor.dashboard') }}">@lang('Dashboard')</a></li>
                          <li class="nav-item"><a class="nav-link {{ Route::is('vendor.services.*') ? 'active' : '' }}" href="{{ route('vendor.services.index') }}">@lang('My Services')</a></li>
+                         <li class="nav-item"><a class="nav-link {{ Route::is('vendor.bookings.*') ? 'active' : '' }}" href="{{ route('vendor.bookings.index') }}">@lang('My Bookings')</a></li>
                          <li class="nav-item mt-auto"><a class="nav-link" href="{{ route('home') }}" target="_blank">@lang('View Main Site')</a></li>
                          <li class="nav-item"><a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form-vendor-mobile').submit();">@lang('Logout')</a><form id="logout-form-vendor-mobile" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form></li>
                     </ul>

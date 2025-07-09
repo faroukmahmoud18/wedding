@@ -60,14 +60,21 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('home') }}">@lang('Home')</a>
                         </li>
                         {{-- Add more public navigation links here, e.g., service categories --}}
                          <li class="nav-item"><a class="nav-link" href="{{ route('services.category', ['category' => 'all']) }}">@lang('All Services')</a></li>
+                         {{-- Potentially add a dropdown for specific categories if the list is long --}}
+                    </ul>
 
+                    <form class="d-flex mx-auto my-2 my-lg-0" style="max-width: 400px;" action="{{ route('search') }}" method="GET">
+                        <input class="form-control me-2" type="search" name="query" placeholder="Search services, vendors..." aria-label="Search" value="{{ request('query') ?? '' }}">
+                        <button class="btn btn-outline-secondary" type="submit" style="color: #4A3B31; border-color: #B08D57;">@lang('Search')</button>
+                    </form>
 
+                    <ul class="navbar-nav ms-auto">
                         @guest
                             @if (Route::has('login'))
                                 <li class="nav-item">

@@ -4,108 +4,146 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0" style="color: #4A3B31;">@lang('My Services')</h1>
-        <a href="{{ route('vendor.services.create') }}" class="btn btn-royal btn-sm">
-             <span style="font-size: 1.2em;">&#43;</span> @lang('Add New Service')
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@lang('My Services')</h1>
+        <a href="{{ route('vendor.services.create') }}" class="btn btn-sm btn-primary btn-royal shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> @lang('Add New Service')
         </a>
     </div>
 
-    <div class="card card-royal-vendor shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            @lang('All My Services List')
-            {{-- Filter Form Placeholder --}}
-            <form action="{{ route('vendor.services.index') }}" method="GET" class="d-inline-flex">
-                <input type="text" name="search" class="form-control form-control-sm me-2" placeholder="@lang('Search my services...')" value="{{ request('search') }}">
-                <select name="status" class="form-select form-select-sm me-2">
-                    <option value="">@lang('All Statuses')</option>
-                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>@lang('Active')</option>
-                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>@lang('Inactive')</option>
-                    <option value="pending_approval" {{ request('status') == 'pending_approval' ? 'selected' : '' }}>@lang('Pending Approval')</option>
-                    <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>@lang('Draft')</option>
-                </select>
-                <button type="submit" class="btn btn-info btn-sm">@lang('Filter')</button>
+    @if(!$vendor->is_approved && !$vendor->is_suspended)
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="fas fa-info-circle me-2"></i>
+        @lang('Your vendor account is pending approval. Services you add will not be live until your account is approved by an admin.')
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    <!-- Filter/Search Form -->
+    <div class="card shadow mb-4 card-royal-vendor">
+        <div class="card-body">
+            <form method="GET" action="{{ route('vendor.services.index') }}" class="row g-3 align-items-center">
+                <div class="col-md-6">
+                    <input type="text" name="search" class="form-control form-control-sm" placeholder="@lang('Search by title...')" value="{{ request('search') }}">
+                </div>
+                <div class="col-md-4">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="all" {{ request('status', 'all') == 'all' ? 'selected' : '' }}>@lang('All Statuses')</option>
+                        <option value="pending_approval" {{ request('status') == 'pending_approval' ? 'selected' : '' }}>@lang('Pending Approval')</option>
+                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>@lang('Approved')</option>
+                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>@lang('Rejected')</option>
+                        <option value="on_hold" {{ request('status') == 'on_hold' ? 'selected' : '' }}>@lang('On Hold by Admin')</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-sm btn-info w-100">@lang('Filter')</button>
+                </div>
             </form>
         </div>
+    </div>
+
+    <div class="card shadow mb-4 card-royal-vendor">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold">@lang('Your Service List')</h6>
+        </div>
         <div class="card-body">
-            @if(isset($services) && $services->count() > 0)
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
+                <table class="table table-bordered table-striped table-hover" id="vendorServicesDataTable" width="100%" cellspacing="0">
+                    <thead class="table-dark" style="background-color: #5D4037; color: #E1C699;">
                         <tr>
-                            <th>@lang('ID')</th>
                             <th>@lang('Title')</th>
                             <th>@lang('Category')</th>
-                            <th>@lang('Price Range')</th>
+                            <th>@lang('Price')</th>
                             <th>@lang('Status')</th>
-                            <th>@lang('Bookings')</th> {{-- Placeholder --}}
-                            <th>@lang('Created At')</th>
+                            <th>@lang('Live')</th>
+                            <th>@lang('Last Updated')</th>
                             <th>@lang('Actions')</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($services as $service) {{-- Loop through services passed from controller --}}
+                        @forelse($services as $service)
                         <tr>
-                            <td>{{ $service->id }}</td>
                             <td>
-                                <img src="{{ $service->featured_image_url ?? 'https://via.placeholder.com/40x30.png?text='.substr($service->title,0,1) }}" alt="{{$service->title}}" class="me-2" style="width:40px; height:auto; border-radius:3px;">
-                                {{ $service->title }}
-                            </td>
-                            <td>{{ $service->category_name ?? ucfirst($service->category) }}</td>
-                            <td>
-                                @if($service->price_from || $service->price_to)
-                                    ${{ number_format($service->price_from ?? 0, 2) }} - ${{ number_format($service->price_to ?? 0, 2) }}
-                                @else
-                                    @lang('On Request')
-                                @endif
-                                <small class="text-muted d-block">{{ $service->unit ?? ''}}</small>
-                            </td>
-                            <td>
-                                @if($service->is_active && $service->status === 'approved')
-                                    <span class="badge bg-success">@lang('Active & Approved')</span>
-                                @elseif(!$service->is_active && $service->status !== 'draft')
-                                    <span class="badge bg-secondary">@lang('Inactive')</span>
-                                @elseif($service->status === 'pending_approval')
-                                    <span class="badge bg-warning text-dark">@lang('Pending Approval')</span>
-                                @elseif($service->status === 'draft')
-                                    <span class="badge bg-light text-dark border">@lang('Draft')</span>
-                                @else
-                                     <span class="badge bg-info">{{ ucfirst(str_replace('_', ' ', $service->status ?? '')) }}</span>
+                                <a href="{{ route('vendor.services.show', $service) }}">{{ Str::limit($service->title, 40) }}</a>
+                                @if($service->featured_image_url)
+                                   <a href="{{ $service->featured_image_url }}" target="_blank" class="ms-1"><i class="fas fa-image text-muted"></i></a>
                                 @endif
                             </td>
-                            <td>{{ $service->bookings_count ?? 0 }}</td> {{-- Assuming bookings_count is eager loaded --}}
-                            <td>{{ $service->created_at->format('M d, Y') }}</td>
+                            <td>{{ $service->category->name ?? __('N/A') }}</td>
+                            <td>{{ config('settings.currency_symbol', '$') }}{{ number_format($service->price, 2) }}</td>
                             <td>
-                                <a href="{{ route('vendor.services.edit', $service->id) }}" class="btn btn-sm btn-outline-primary me-1" title="@lang('Edit')">&#9998;</a>
-                                <a href="{{ route('services.show', $service->slug) }}" target="_blank" class="btn btn-sm btn-outline-info me-1" title="@lang('View Public Page')">&#128269;</a> {{-- Magnifying glass --}}
-                                <form action="{{ route('vendor.services.destroy', $service->id) }}" method="POST" class="d-inline" onsubmit="return confirm('@lang('Are you sure you want to delete this service? This action cannot be undone.')');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="@lang('Delete')">&#128465;</button>
-                                </form>
+                                @if($service->status == 'approved') <span class="badge bg-success">@lang('Approved')</span>
+                                @elseif($service->status == 'pending_approval') <span class="badge bg-warning text-dark">@lang('Pending Review')</span>
+                                @elseif($service->status == 'rejected')
+                                    <span class="badge bg-danger">@lang('Rejected')</span>
+                                    @if($service->rejection_reason)
+                                        <i class="fas fa-info-circle text-danger ms-1" data-bs-toggle="tooltip" title="{{ $service->rejection_reason }}"></i>
+                                    @endif
+                                @elseif($service->status == 'on_hold') <span class="badge bg-secondary">@lang('On Hold by Admin')</span>
+                                @else <span class="badge bg-light text-dark">{{ Str::title(str_replace('_', ' ', $service->status)) }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                {!! $service->is_live ? '<span class="badge bg-success">'.__('Yes').'</span>' : '<span class="badge bg-secondary">'.__('No').'</span>' !!}
+                            </td>
+                            <td>{{ $service->updated_at->format('M d, Y') }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ route('vendor.services.show', $service) }}" class="btn btn-sm btn-info" title="@lang('View')"><i class="fas fa-eye"></i></a>
+                                    @if(in_array($service->status, ['pending_approval', 'rejected', 'on_hold']) || ($service->status == 'approved' && !$service->is_live) )
+                                        {{-- Allow edit if pending, rejected, on_hold, or approved but offline --}}
+                                        <a href="{{ route('vendor.services.edit', $service) }}" class="btn btn-sm btn-primary" title="@lang('Edit')"><i class="fas fa-edit"></i></a>
+                                    @else
+                                        {{-- For Approved & Live services, edit might be restricted or have a different flow --}}
+                                         <button class="btn btn-sm btn-primary" title="@lang('Edit (Service is Live - contact admin for major changes)')" disabled><i class="fas fa-edit"></i></button>
+                                    @endif
+                                    {{-- Delete action might be restricted based on status or bookings --}}
+                                    @if(!in_array($service->status, ['approved']) || !$service->is_live)
+                                    <form action="{{ route('vendor.services.destroy', $service) }}" method="POST" class="d-inline" onsubmit="return confirm('@lang('Are you sure you want to delete this service? This action cannot be undone.')');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" title="@lang('Delete')"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                    @else
+                                     <button class="btn btn-sm btn-danger" title="@lang('Delete (Cannot delete live service)')" disabled><i class="fas fa-trash"></i></button>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <p class="mb-2">@lang('You haven\'t added any services yet.')</p>
+                                <a href="{{ route('vendor.services.create') }}" class="btn btn-primary btn-royal"><i class="fas fa-plus"></i> @lang('Add Your First Service')</a>
+                            </td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="mt-3 d-flex justify-content-center">
-                {{-- {{ $services->appends(request()->query())->links() }} --}}
-                 <nav><ul class="pagination"><li class="page-item disabled"><span class="page-link">@lang('Prev')</span></li> <li class="page-item active"><span class="page-link">1</span></li> <li class="page-item"><a class="page-link" href="#">@lang('Next')</a></li></ul></nav>
+             <div class="d-flex justify-content-center">
+                {{ $services->links() }}
             </div>
-            @else
-                <p class="text-center">@lang('You haven\'t added any services yet, or no services match your current filter.')</p>
-                @if(!request('search') && !request('status'))
-                    <p class="text-center"><a href="{{ route('vendor.services.create') }}">@lang('Add your first service!')</a></p>
-                @endif
-            @endif
         </div>
     </div>
 </div>
 @endsection
 
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+.table-dark { background-color: #5D4037 !important; color: #E1C699; } /* Vendor theme table head */
+.btn-group .btn { margin-right: 2px; }
+.fa-info-circle { cursor: help; }
+</style>
+@endpush
+
 @push('scripts')
 <script>
-    // Add any JS for this page
+    // Initialize Bootstrap tooltips for rejection reasons
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
 </script>
 @endpush
