@@ -16,9 +16,30 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Logic to display homepage
-        // Example: return view('welcome');
-        return view('home'); // Assuming you have a home.blade.php or similar
+        // Fetch a few approved, active services (e.g., latest or featured)
+        $featuredServices = \App\Models\Service::with('vendor', 'images')
+            ->live() // Uses the scopeLive() in Service model
+            ->orderBy('created_at', 'desc') // Example: latest services
+            ->take(4)
+            ->get();
+
+        // Fetch a few approved, active vendors (e.g., by rating or latest)
+        $featuredVendors = \App\Models\Vendor::with('services')
+            ->active() // Uses the scopeActive() in Vendor model
+            ->orderBy('created_at', 'desc') // Example: latest vendors
+            ->take(4)
+            ->get();
+
+        // Fetch categories - this could come from a dedicated categories table or distinct values from services
+        $categories = \App\Models\Service::live()
+            ->select('category')
+            ->distinct()
+            ->orderBy('category')
+            ->take(6) // Limit number of categories shown on homepage
+            ->pluck('category');
+
+
+        return view('home', compact('featuredServices', 'featuredVendors', 'categories'));
     }
 
     /**

@@ -28,6 +28,7 @@ class Booking extends Model
         'qty', // Quantity or number of units (e.g., hours, guests)
         'total', // Total price for the booking
         'status', // e.g., 'pending', 'confirmed', 'cancelled', 'completed'
+        'message', // Optional message from user during booking
         // You might add vendor_id here if you want a direct link,
         // though it can be derived via service->vendor
     ];

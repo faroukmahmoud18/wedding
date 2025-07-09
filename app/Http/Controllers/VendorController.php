@@ -32,10 +32,18 @@ class VendorController extends Controller
      */
     public function publicProfile($id)
     {
-        // Logic to display a vendor's public profile
-        // Example: $vendor = Vendor::with('services')->findOrFail($id);
-        // return view('vendors.profile', compact('vendor'));
-        return view('vendors.profile', ['id' => $id]);
+        $vendor = Vendor::with(['services' => function ($query) {
+            $query->live()->orderBy('created_at', 'desc'); // Only live services, latest first
+        }])
+        ->active() // Vendor themselves must be active/approved
+        ->findOrFail($id);
+
+        // You might want to paginate services if a vendor has many
+        // For now, fetching all live services. If pagination is needed:
+        // $services = $vendor->services()->live()->paginate(10);
+        // return view('vendors.profile', compact('vendor', 'services'));
+
+        return view('vendors.profile', compact('vendor'));
     }
 
     /**

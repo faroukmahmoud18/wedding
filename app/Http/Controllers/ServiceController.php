@@ -17,12 +17,57 @@ class ServiceController extends Controller
      * @param string $category
      * @return \Illuminate\View\View
      */
-    public function category($category)
+    public function category(Request $request, $categorySlug)
     {
-        // Logic to display services by category
-        // Example: $services = Service::where('category', $category)->active()->paginate(10);
-        // return view('services.category', compact('services', 'category'));
-        return view('services.category', ['category' => $category]);
+        $query = Service::with('vendor', 'images')->live(); // Use the 'live' scope
+
+        if ($categorySlug !== 'all') {
+            $query->where('category', $categorySlug);
+        }
+
+        // Basic filtering examples (can be expanded)
+        if ($request->filled('price_from')) {
+            $query->where('price_from', '>=', $request->input('price_from'));
+        }
+        if ($request->filled('price_to')) {
+            $query->where('price_to', '<=', $request->input('price_to'));
+        }
+        if ($request->filled('location_filter')) {
+            // This is a simple location text search, could be more advanced
+            $query->where('location_text', 'LIKE', '%' . $request->input('location_filter') . '%');
+        }
+        // Add rating filter if Review model and relationships are set up for average rating
+        // e.g. if ($request->filled('min_rating')) { $query->whereHas('reviews', fn($q) => $q->havingRaw('AVG(rating) >= ?', [$request->input('min_rating')])); }
+
+
+        // Sorting
+        $sortBy = $request->input('sort_by', 'default');
+        switch ($sortBy) {
+            case 'price_asc':
+                $query->orderBy('price_from', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price_from', 'desc'); // or price_to
+                break;
+            case 'rating_desc':
+                // Requires average rating calculation, e.g., with a subquery or a dedicated column
+                // $query->orderBy('average_rating', 'desc'); // Placeholder
+                $query->orderBy('created_at', 'desc'); // Fallback
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+        }
+
+        $services = $query->paginate(12)->appends($request->query()); // 12 items per page, append query string for filters
+
+        $categoryTitle = ($categorySlug === 'all') ? __('All Services') : Str::title(str_replace('-', ' ', $categorySlug));
+
+        return view('services.category', [
+            'services' => $services,
+            'category' => $categorySlug, // The slug
+            'categoryTitle' => $categoryTitle, // For display
+            'filters' => $request->all() // Pass current filters back to the view
+        ]);
     }
 
     /**
@@ -33,10 +78,29 @@ class ServiceController extends Controller
      */
     public function show($slug)
     {
-        // Logic to display a single service by slug
-        // Example: $service = Service::where('slug', $slug)->active()->firstOrFail();
-        // return view('services.show', compact('service'));
-        return view('services.show', ['slug' => $slug]);
+        $service = Service::with([
+            'vendor' => function ($query) {
+                $query->active(); // Only show if vendor is active
+            },
+            'images',
+            'reviews' => function ($query) {
+                $query->approved()->with('user')->latest(); // Approved reviews with user, latest first
+            }
+        ])
+        ->live() // Service itself must be live
+        ->where('slug', $slug)
+        ->firstOrFail();
+
+        // Potentially load related services as well
+        $relatedServices = Service::with('vendor', 'images')
+            ->live()
+            ->where('category', $service->category)
+            ->where('id', '!=', $service->id) // Exclude current service
+            ->inRandomOrder()
+            ->take(4)
+            ->get();
+
+        return view('services.show', compact('service', 'relatedServices'));
     }
 
     /**

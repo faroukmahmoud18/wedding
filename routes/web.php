@@ -31,6 +31,7 @@ Route::get('/vendors/{id}', [VendorController::class, 'publicProfile'])->name('v
 
 // Booking submission
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+Route::get('/booking/confirmation', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
 
 // Admin Dashboard
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(function () { // Added auth and verified middleware

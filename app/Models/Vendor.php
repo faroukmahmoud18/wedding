@@ -4,10 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage; // For logo URL
 
 class Vendor extends Model
 {
     use HasFactory;
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'vendors';
 
     /**
      * The attributes that are mass assignable.
@@ -15,12 +26,17 @@ class Vendor extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'user_id',
         'name',
-        'logo',
+        'logo', // File path for the logo
         'about',
         'phone',
         'email',
         'address',
+        'city',
+        'country',
+        'is_approved',
+        'is_suspended',
     ];
 
     /**
@@ -29,20 +45,60 @@ class Vendor extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        // 'address' => 'array', // If address is stored as JSON
+        'is_approved' => 'boolean',
+        'is_suspended' => 'boolean',
+        // 'address' => 'array', // Example if address is stored as JSON (e.g., for structured address)
     ];
 
     /**
      * Get the services offered by the vendor.
      */
-    public function services()
+    public function services(): HasMany
     {
         return $this->hasMany(Service::class);
     }
 
-    // Optional: If vendors are linked to a user account
-    // public function user()
-    // {
-    //     return $this->belongsTo(User::class);
-    // }
+    /**
+     * Get the user account that this vendor profile might be directly associated with.
+     * This relationship assumes a User record (with role 'vendor') has a vendor_id pointing here,
+     * making User the owner of this Vendor profile.
+     * Or, if a Vendor is managed by a User, then this Vendor has a user_id.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id'); // Assumes vendors.user_id foreign key
+    }
+
+    /**
+     * Scope a query to only include approved and not suspended vendors.
+     */
+    public function scopeApproved(Builder $query): Builder
+    {
+        return $query->where('is_approved', true)->where('is_suspended', false);
+    }
+
+    /**
+     * Scope a query to only include active (approved and not suspended) vendors.
+     * Alias for scopeApproved.
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $this->scopeApproved($query);
+    }
+
+    /**
+     * Get the URL for the vendor's logo.
+     * Accessor: getLogoUrlAttribute
+     *
+     * @return string|null
+     */
+    public function getLogoUrlAttribute(): ?string
+    {
+        if ($this->logo && Storage::disk('public')->exists($this->logo)) {
+            return Storage::disk('public')->url($this->logo);
+        }
+        // Return a default placeholder if no logo or logo not found
+        // Consider a more thematically appropriate placeholder
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=7F9CF5&background=EBF4FF';
+    }
 }
