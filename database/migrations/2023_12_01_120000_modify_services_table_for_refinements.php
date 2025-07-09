@@ -103,8 +103,9 @@ return new class extends Migration
                  // If we need to change the default constraint on an *existing* column:
                  // $table->boolean('is_live')->default(false)->change(); // Requires doctrine/dbal
                  // For existing rows, if status is not 'approved', set is_live to false.
+                 // If status is 'approved', is_live will retain its value from the old 'is_active' column.
+                 // This respects if an admin/vendor had previously set an approved service to be inactive.
                  \Illuminate\Support\Facades\DB::statement("UPDATE services SET is_live = 0 WHERE status != 'approved'");
-                 \Illuminate\Support\Facades\DB::statement("UPDATE services SET is_live = 1 WHERE status = 'approved' AND is_live IS NULL"); // If is_live was newly added and is_active was true
             }
         });
 
