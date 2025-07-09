@@ -30,13 +30,17 @@ class HomeController extends Controller
             ->take(4)
             ->get();
 
-        // Fetch categories - this could come from a dedicated categories table or distinct values from services
-        $categories = \App\Models\Service::live()
-            ->select('category')
+        // Fetch categories - now fetching actual Category models
+        // We can get categories that actually have live services.
+        $categoryIdsWithLiveServices = \App\Models\Service::live()
+            ->select('category_id')
             ->distinct()
-            ->orderBy('category')
+            ->pluck('category_id');
+
+        $categories = \App\Models\Category::whereIn('id', $categoryIdsWithLiveServices)
+            ->orderBy('name')
             ->take(6) // Limit number of categories shown on homepage
-            ->pluck('category');
+            ->get();
 
 
         return view('home', compact('featuredServices', 'featuredVendors', 'categories'));
