@@ -51,12 +51,17 @@ class User extends Authenticatable // Consider adding: implements MustVerifyEmai
         ];
     }
 
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_VENDOR = 'vendor';
+    public const ROLE_CUSTOMER = 'customer';
+
     /**
      * Get the vendor profile associated with the user (if user is a vendor).
+     * A user (who is a vendor) has one vendor profile.
      */
-    public function vendorProfile(): BelongsTo
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->belongsTo(Vendor::class, 'vendor_id');
+        return $this->hasOne(Vendor::class, 'user_id'); // Assumes foreign key 'user_id' on 'vendors' table
     }
 
     /**
@@ -82,7 +87,7 @@ class User extends Authenticatable // Consider adding: implements MustVerifyEmai
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === self::ROLE_ADMIN;
     }
 
     /**
@@ -92,7 +97,8 @@ class User extends Authenticatable // Consider adding: implements MustVerifyEmai
      */
     public function isVendor(): bool
     {
-        return $this->role === 'vendor' && $this->vendor_id !== null;
+        // Check role and if a vendor profile exists for this user
+        return $this->role === self::ROLE_VENDOR && $this->vendor()->exists();
     }
 
     /**
@@ -102,6 +108,6 @@ class User extends Authenticatable // Consider adding: implements MustVerifyEmai
      */
     public function isCustomer(): bool
     {
-        return $this->role === 'customer';
+        return $this->role === self::ROLE_CUSTOMER;
     }
 }

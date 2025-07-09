@@ -1,23 +1,26 @@
 @extends('layouts.app')
 
-@section('title', 'Search Results' . (isset($query) && $query ? ' for "' . e($query) . '"' : ''))
+@section('title', __('Search Results') . (isset($query) && $query ? ' for "' . e($query) . '"' : ''))
 
 @section('content')
-<div class="container py-5">
-    <div class="row">
-        <div class="col-lg-3 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Filters</h5>
+<div class="container mx-auto px-4 py-8">
+    <div class="lg:flex lg:space-x-8">
+        {{-- Filters Sidebar --}}
+        <aside class="lg:w-1/4 mb-8 lg:mb-0">
+            <div class="card-royal">
+                <div class="card-royal-header p-4 border-b border-[hsl(var(--border))]">
+                    <h3 class="text-lg font-serif font-semibold text-[hsl(var(--deep-brown))]">@lang('Filters')</h3>
                 </div>
-                <div class="card-body">
+                <div class="card-royal-body p-4">
                     <form method="GET" action="{{ route('search') }}">
                         <input type="hidden" name="query" value="{{ $query ?? '' }}">
+                        <input type="hidden" name="sort_by" value="{{ $sort_by ?? 'relevance' }}">
 
-                        <div class="mb-3">
-                            <label for="category_id" class="form-label">Category</label>
-                            <select name="category_id" id="category_id" class="form-select">
-                                <option value="">All Categories</option>
+
+                        <div class="mb-4">
+                            <label for="category_id" class="block text-sm font-medium text-[hsl(var(--foreground))] mb-1">@lang('Category')</label>
+                            <select name="category_id" id="category_id" class="form-select mt-1 block w-full rounded-md border-[hsl(var(--input))] shadow-sm focus:border-[hsl(var(--ring))] focus:ring focus:ring-[hsl(var(--ring))] focus:ring-opacity-50">
+                                <option value="">@lang('All Categories')</option>
                                 @foreach($categories as $category)
                                     <option value="{{ $category->id }}" {{ (isset($category_id) && $category_id == $category->id) ? 'selected' : '' }}>
                                         {{ $category->name }}
@@ -26,80 +29,81 @@
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="location" class="form-label">Location</label>
-                            <input type="text" name="location" id="location" class="form-control" placeholder="e.g., City, State" value="{{ $location ?? '' }}">
+                        <div class="mb-4">
+                            <label for="location" class="block text-sm font-medium text-[hsl(var(--foreground))] mb-1">@lang('Location')</label>
+                            <input type="text" name="location" id="location" class="form-input mt-1 block w-full rounded-md border-[hsl(var(--input))] shadow-sm focus:border-[hsl(var(--ring))] focus:ring focus:ring-[hsl(var(--ring))] focus:ring-opacity-50" placeholder="@lang('e.g., City, State')" value="{{ $location ?? '' }}">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="min_price" class="form-label">Min Price ({{ config('settings.currency_symbol') }})</label>
-                            <input type="number" name="min_price" id="min_price" class="form-control" placeholder="0" value="{{ $min_price ?? '' }}" min="0">
+                        <div class="mb-4">
+                            <label for="min_price" class="block text-sm font-medium text-[hsl(var(--foreground))] mb-1">@lang('Min Price') ({{ config('settings.currency_symbol', '$') }})</label>
+                            <input type="number" name="min_price" id="min_price" class="form-input mt-1 block w-full rounded-md border-[hsl(var(--input))] shadow-sm focus:border-[hsl(var(--ring))] focus:ring focus:ring-[hsl(var(--ring))] focus:ring-opacity-50" placeholder="0" value="{{ $min_price ?? '' }}" min="0">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="max_price" class="form-label">Max Price ({{ config('settings.currency_symbol') }})</label>
-                            <input type="number" name="max_price" id="max_price" class="form-control" placeholder="Any" value="{{ $max_price ?? '' }}" min="0">
+                        <div class="mb-4">
+                            <label for="max_price" class="block text-sm font-medium text-[hsl(var(--foreground))] mb-1">@lang('Max Price') ({{ config('settings.currency_symbol', '$') }})</label>
+                            <input type="number" name="max_price" id="max_price" class="form-input mt-1 block w-full rounded-md border-[hsl(var(--input))] shadow-sm focus:border-[hsl(var(--ring))] focus:ring focus:ring-[hsl(var(--ring))] focus:ring-opacity-50" placeholder="@lang('Any')" value="{{ $max_price ?? '' }}" min="0">
                         </div>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        <div>
+                            <button type="submit" class="btn-royal w-full">@lang('Apply Filters')</button>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
+        </aside>
 
-        <div class="col-lg-9">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+        {{-- Search Results --}}
+        <div class="lg:w-3/4">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 pb-4 border-b border-[hsl(var(--border))]">
                 <div>
                     @if(isset($query) && $query)
-                        <h2 class="h4">Search Results for "<span class="fw-bold text-primary">{{ e($query) }}</span>"</h2>
+                        <h1 class="text-2xl md:text-3xl font-serif text-[hsl(var(--deep-brown))]">@lang('Results for:') "<span class="text-[hsl(var(--royal-gold-dark))]">{{ e($query) }}</span>"</h1>
                     @else
-                        <h2 class="h4">Browse Services</h2>
+                        <h1 class="text-2xl md:text-3xl font-serif text-[hsl(var(--deep-brown))]">@lang('Browse All Services')</h1>
                     @endif
-                    <p class="text-muted mb-0">{{ $services->total() }} services found.</p>
+                    <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">{{ $services->total() }} @lang('services found.')</p>
                 </div>
-                <div>
-                    <form method="GET" action="{{ route('search') }}" class="d-inline-block">
+                <div class="mt-4 sm:mt-0">
+                    <form method="GET" action="{{ route('search') }}" id="sortForm">
                         <input type="hidden" name="query" value="{{ $query ?? '' }}">
                         <input type="hidden" name="category_id" value="{{ $category_id ?? '' }}">
                         <input type="hidden" name="location" value="{{ $location ?? '' }}">
                         <input type="hidden" name="min_price" value="{{ $min_price ?? '' }}">
                         <input type="hidden" name="max_price" value="{{ $max_price ?? '' }}">
-                        <select name="sort_by" class="form-select form-select-sm d-inline-block w-auto" onchange="this.form.submit()">
-                            <option value="relevance" {{ (isset($sort_by) && $sort_by == 'relevance') ? 'selected' : '' }}>Sort by Relevance</option>
-                            <option value="price_asc" {{ (isset($sort_by) && $sort_by == 'price_asc') ? 'selected' : '' }}>Price: Low to High</option>
-                            <option value="price_desc" {{ (isset($sort_by) && $sort_by == 'price_desc') ? 'selected' : '' }}>Price: High to Low</option>
-                            <option value="new_first" {{ (isset($sort_by) && $sort_by == 'new_first') ? 'selected' : '' }}>Newest First</option>
-                            {{-- Add more sort options if needed --}}
+                        <select name="sort_by" class="form-select rounded-md border-[hsl(var(--input))] shadow-sm focus:border-[hsl(var(--ring))] focus:ring focus:ring-[hsl(var(--ring))] focus:ring-opacity-50 text-sm" onchange="document.getElementById('sortForm').submit()">
+                            <option value="relevance" {{ (isset($sort_by) && $sort_by == 'relevance') ? 'selected' : '' }}>@lang('Sort by Relevance')</option>
+                            <option value="price_asc" {{ (isset($sort_by) && $sort_by == 'price_asc') ? 'selected' : '' }}>@lang('Price: Low to High')</option>
+                            <option value="price_desc" {{ (isset($sort_by) && $sort_by == 'price_desc') ? 'selected' : '' }}>@lang('Price: High to Low')</option>
+                            <option value="new_first" {{ (isset($sort_by) && $sort_by == 'new_first') ? 'selected' : '' }}>@lang('Newest First')</option>
                         </select>
                     </form>
                 </div>
             </div>
 
             @if($services->count() > 0)
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     @foreach($services as $service)
-                        <div class="col">
-                            @include('partials.service_card', ['service' => $service])
-                        </div>
+                        @include('partials.service_card', ['service' => $service])
                     @endforeach
                 </div>
 
-                <div class="mt-5 d-flex justify-content-center">
-                    {{ $services->appends(request()->query())->links() }}
+                <div class="mt-8">
+                    {{ $services->appends(request()->query())->links() }} {{-- Ensure pagination views are Tailwind styled --}}
                 </div>
             @else
-                <div class="card text-center shadow-sm">
-                    <div class="card-body py-5">
-                        <i class="bi bi-emoji-frown fs-1 text-warning"></i>
-                        <h3 class="card-title mt-3">No Services Found</h3>
-                        <p class="card-text">
-                            We couldn't find any services matching your criteria. Try adjusting your search query or filters.
-                        </p>
-                        <a href="{{ route('home') }}" class="btn btn-primary mt-2">Back to Home</a>
+                <div class="card-royal p-8 text-center">
+                    {{-- <i class="bi bi-emoji-frown fs-1 text-warning"></i> --}}
+                    <svg class="mx-auto h-12 w-12 text-[hsl(var(--royal-gold-light))]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="mt-2 text-xl font-serif font-semibold text-[hsl(var(--deep-brown))]">@lang('No Services Found')</h3>
+                    <p class="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
+                        @lang('We couldn\'t find any services matching your criteria. Try adjusting your search query or filters.')
+                    </p>
+                    <div class="mt-6">
+                        <a href="{{ route('home') }}" class="btn-royal">@lang('Back to Home')</a>
                         @if(isset($query) || isset($category_id) || isset($location) || isset($min_price) || isset($max_price))
-                            <a href="{{ route('search') }}" class="btn btn-outline-secondary mt-2">Clear Filters</a>
+                            <a href="{{ route('search') }}" class="btn-royal-outline ml-2">@lang('Clear Filters')</a>
                         @endif
                     </div>
                 </div>
@@ -110,33 +114,7 @@
 @endsection
 
 @push('styles')
-<style>
-    /* Basic styling to match royal theme - can be expanded in main CSS */
-    .card-header.bg-primary {
-        background-color: #4a00e0 !important; /* Example primary color */
-    }
-    .btn-primary {
-        background-color: #4a00e0;
-        border-color: #4a00e0;
-    }
-    .btn-primary:hover {
-        background-color: #3a00b0;
-        border-color: #3a00b0;
-    }
-    .text-primary {
-        color: #4a00e0 !important;
-    }
-    .page-item.active .page-link {
-        background-color: #4a00e0;
-        border-color: #4a00e0;
-    }
-    .page-link {
-        color: #4a00e0;
-    }
-    .page-link:hover {
-        color: #3a00b0;
-    }
-</style>
+{{-- Removed old style block. Specific styles for this page can be added here if needed, but prefer Tailwind utilities or app.css components --}}
 @endpush
 
 @push('scripts')
