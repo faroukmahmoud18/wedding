@@ -103,7 +103,7 @@ class ServiceController extends Controller
         // Potentially load related services as well
         $relatedServices = Service::with('vendor', 'images')
             ->live()
-            ->where('category', $service->category)
+            ->where('category_id', $service->category_id) // Corrected to use category_id
             ->where('id', '!=', $service->id) // Exclude current service
             ->inRandomOrder()
             ->take(4)
