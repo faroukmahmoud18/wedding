@@ -56,7 +56,7 @@ class MarketplaceSeeder extends Seeder
                         'price_from' => rand(100, 500) * 10,
                         'price_to' => rand(600, 1000) * 10,
                         'unit' => $serviceUnits[array_rand($serviceUnits)],
-                        'is_active' => true,
+                        'is_live' => true,
                     ]);
                 }
             }

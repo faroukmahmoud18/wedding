@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('price_from', 10, 2)->nullable(); // Example: 10 total digits, 2 decimal places
             $table->decimal('price_to', 10, 2)->nullable(); // For price ranges
             $table->string('unit')->nullable(); // e.g., 'per hour', 'per event', 'per item'
-            $table->boolean('is_active')->default(true); // To easily enable/disable services
+            $table->boolean('is_live')->default(true); // To easily enable/disable services
             $table->timestamps(); // created_at and updated_at
         });
     }

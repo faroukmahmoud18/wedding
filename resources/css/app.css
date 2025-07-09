@@ -1,212 +1,212 @@
-/* Import Tailwind base, components, and utilities */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+  /* Import Tailwind base, components, and utilities */
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
 
-/*
-  Royal Wedding Services Design System
-  Adapted from front them/src/index.css
-  Deep ivory backgrounds, rich gold accents, elegant serif fonts, royal arabesque ornaments
-  All colors MUST be HSL.
-*/
+  /*
+    Royal Wedding Services Design System
+    Adapted from front them/src/index.css
+    Deep ivory backgrounds, rich gold accents, elegant serif fonts, royal arabesque ornaments
+    All colors MUST be HSL.
+  */
 
-@layer base {
-  :root {
-    /* Royal Color Palette - from front them/src/index.css */
-    --background: 48 20% 98%;           /* Deep ivory */
-    --foreground: 24 15% 20%;           /* Deep brown */
+  @layer base {
+    :root {
+      /* Royal Color Palette - from front them/src/index.css */
+      --background: 48 20% 98%;           /* Deep ivory */
+      --foreground: 24 15% 20%;           /* Deep brown */
 
-    --card: 48 25% 97%;                 /* Slightly warmer ivory */
-    --card-foreground: 24 15% 20%;
+      --card: 48 25% 97%;                 /* Slightly warmer ivory */
+      --card-foreground: 24 15% 20%;
 
-    --popover: 48 25% 97%;
-    --popover-foreground: 24 15% 20%;
+      --popover: 48 25% 97%;
+      --popover-foreground: 24 15% 20%;
 
-    --primary: 45 100% 51%;             /* Rich royal gold #D4AF37 */
-    --primary-foreground: 48 25% 97%;   /* Should contrast with primary, e.g., deep brown or ivory */
+      --primary: 45 100% 51%;             /* Rich royal gold #D4AF37 */
+      --primary-foreground: 48 25% 97%;   /* Should contrast with primary, e.g., deep brown or ivory */
 
-    --secondary: 45 35% 88%;            /* Soft champagne */
-    --secondary-foreground: 24 15% 20%;
+      --secondary: 45 35% 88%;            /* Soft champagne */
+      --secondary-foreground: 24 15% 20%;
 
-    --muted: 48 15% 92%;                /* Warm gray */
-    --muted-foreground: 24 8% 45%;
+      --muted: 48 15% 92%;                /* Warm gray */
+      --muted-foreground: 24 8% 45%;
 
-    --accent: 45 80% 75%;               /* Lighter gold accent */
-    --accent-foreground: 24 15% 20%;
+      --accent: 45 80% 75%;               /* Lighter gold accent */
+      --accent-foreground: 24 15% 20%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 48 25% 97%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 48 25% 97%;
 
-    --border: 45 25% 85%;               /* Warm border */
-    --input: 48 15% 94%;
-    --ring: 45 100% 51%;                /* Typically primary color for focus rings */
+      --border: 45 25% 85%;               /* Warm border */
+      --input: 48 15% 94%;
+      --ring: 45 100% 51%;                /* Typically primary color for focus rings */
 
-    --radius: 0.75rem;
+      --radius: 0.75rem;
 
-    /* Royal Design Tokens - from front them/src/index.css */
-    --royal-gold: 45 100% 51%;
-    --royal-gold-light: 45 80% 75%;
-    --royal-gold-dark: 45 100% 40%;
-    --ivory: 48 20% 98%;
-    --warm-ivory: 48 25% 97%;
-    --deep-brown: 24 15% 20%;
+      /* Royal Design Tokens - from front them/src/index.css */
+      --royal-gold: 45 100% 51%;
+      --royal-gold-light: 45 80% 75%;
+      --royal-gold-dark: 45 100% 40%;
+      --ivory: 48 20% 98%;
+      --warm-ivory: 48 25% 97%;
+      --deep-brown: 24 15% 20%;
 
-    /* Gradients - from front them/src/index.css */
-    --gradient-royal: linear-gradient(135deg, hsl(var(--royal-gold)), hsl(var(--royal-gold-light)));
-    --gradient-ivory: linear-gradient(180deg, hsl(var(--warm-ivory)), hsl(var(--ivory))); /* Adjusted to use defined vars */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--ivory)) 0%, hsl(var(--secondary)) 100%); /* Adjusted */
+      /* Gradients - from front them/src/index.css */
+      --gradient-royal: linear-gradient(135deg, hsl(var(--royal-gold)), hsl(var(--royal-gold-light)));
+      --gradient-ivory: linear-gradient(180deg, hsl(var(--warm-ivory)), hsl(var(--ivory))); /* Adjusted to use defined vars */
+      --gradient-hero: linear-gradient(135deg, hsl(var(--ivory)) 0%, hsl(var(--secondary)) 100%); /* Adjusted */
 
-    /* Shadows - from front them/src/index.css */
-    --shadow-royal: 0 10px 30px -10px hsl(var(--royal-gold) / 0.3);
-    --shadow-elegant: 0 4px 20px -2px hsl(var(--deep-brown) / 0.1);
-    --shadow-card: 0 2px 10px -2px hsl(var(--deep-brown) / 0.05);
+      /* Shadows - from front them/src/index.css */
+      --shadow-royal: 0 10px 30px -10px hsl(var(--royal-gold) / 0.3);
+      --shadow-elegant: 0 4px 20px -2px hsl(var(--deep-brown) / 0.1);
+      --shadow-card: 0 2px 10px -2px hsl(var(--deep-brown) / 0.05);
 
-    /* Sidebar colors - from front them/src/index.css */
-    --sidebar-background: 24 15% 20%; /* Deep Brown for sidebar background */
-    --sidebar-foreground: 45 35% 88%;   /* Soft champagne for text */
+      /* Sidebar colors - from front them/src/index.css */
+      --sidebar-background: 24 15% 20%; /* Deep Brown for sidebar background */
+      --sidebar-foreground: 45 35% 88%;   /* Soft champagne for text */
 
-    --sidebar-primary: 45 100% 51%; /* Royal Gold for active/primary links */
-    --sidebar-primary-foreground: 24 15% 20%; /* Deep brown for text on primary */
+      --sidebar-primary: 45 100% 51%; /* Royal Gold for active/primary links */
+      --sidebar-primary-foreground: 24 15% 20%; /* Deep brown for text on primary */
 
-    --sidebar-accent: 45 80% 75%; /* Lighter gold for hover/accent */
-    --sidebar-accent-foreground: 24 15% 20%;
+      --sidebar-accent: 45 80% 75%; /* Lighter gold for hover/accent */
+      --sidebar-accent-foreground: 24 15% 20%;
 
-    --sidebar-border: 45 100% 40%; /* Darker gold for borders within sidebar */
-    --sidebar-ring: 45 100% 51%;
+      --sidebar-border: 45 100% 40%; /* Darker gold for borders within sidebar */
+      --sidebar-ring: 45 100% 51%;
+    }
+
+    /* Dark mode variables - from front them/src/index.css */
+    .dark {
+      --background: 24 15% 15%;           /* Darker deep brown */
+      --foreground: 48 20% 90%;           /* Lighter ivory/off-white */
+
+      --card: 24 15% 20%;                 /* Deep brown */
+      --card-foreground: 48 20% 90%;
+
+      --popover: 24 15% 18%;
+      --popover-foreground: 48 20% 90%;
+
+      --primary: 45 90% 60%;              /* Slightly desaturated gold for dark mode */
+      --primary-foreground: 24 15% 10%;
+
+      --secondary: 45 30% 30%;            /* Darker champagne */
+      --secondary-foreground: 48 20% 90%;
+
+      --muted: 24 10% 35%;
+      --muted-foreground: 48 10% 70%;
+
+      --accent: 45 70% 60%;
+      --accent-foreground: 24 15% 10%;
+
+      --destructive: 0 70% 50%;
+      --destructive-foreground: 48 20% 90%;
+
+      --border: 24 15% 30%;
+      --input: 24 15% 25%;
+      --ring: 45 90% 60%;
+
+      /* Dark Sidebar colors */
+      --sidebar-background: 24 15% 10%;
+      --sidebar-foreground: 45 35% 80%;
+      --sidebar-primary: 45 90% 60%;
+      --sidebar-primary-foreground: 24 15% 10%;
+      --sidebar-accent: 45 70% 50%;
+      --sidebar-accent-foreground: 24 15% 10%;
+      --sidebar-border: 24 15% 25%;
+      --sidebar-ring: 45 90% 60%;
+    }
   }
 
-  /* Dark mode variables - from front them/src/index.css */
-  .dark {
-    --background: 24 15% 15%;           /* Darker deep brown */
-    --foreground: 48 20% 90%;           /* Lighter ivory/off-white */
+  @layer base {
+    * {
+      @apply border-border;
+    }
 
-    --card: 24 15% 20%;                 /* Deep brown */
-    --card-foreground: 48 20% 90%;
+    body {
+      @apply bg-background text-foreground;
+      font-family: theme('fontFamily.sans'); /* Use Tailwind config for sans font */
+    }
 
-    --popover: 24 15% 18%;
-    --popover-foreground: 48 20% 90%;
-
-    --primary: 45 90% 60%;              /* Slightly desaturated gold for dark mode */
-    --primary-foreground: 24 15% 10%;
-
-    --secondary: 45 30% 30%;            /* Darker champagne */
-    --secondary-foreground: 48 20% 90%;
-
-    --muted: 24 10% 35%;
-    --muted-foreground: 48 10% 70%;
-
-    --accent: 45 70% 60%;
-    --accent-foreground: 24 15% 10%;
-
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 48 20% 90%;
-
-    --border: 24 15% 30%;
-    --input: 24 15% 25%;
-    --ring: 45 90% 60%;
-
-    /* Dark Sidebar colors */
-    --sidebar-background: 24 15% 10%;
-    --sidebar-foreground: 45 35% 80%;
-    --sidebar-primary: 45 90% 60%;
-    --sidebar-primary-foreground: 24 15% 10%;
-    --sidebar-accent: 45 70% 50%;
-    --sidebar-accent-foreground: 24 15% 10%;
-    --sidebar-border: 24 15% 25%;
-    --sidebar-ring: 45 90% 60%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
+    h1, h2, h3, h4, h5, h6 {
+      font-family: theme('fontFamily.serif'); /* Use Tailwind config for serif font */
+      font-weight: 600; /* As per front them/src/index.css */
+    }
   }
 
+  @layer components {
+    /* Royal Button Variants - from front them/src/index.css */
+    .btn-royal {
+      @apply bg-gradient-to-r from-primary to-[hsl(var(--primary)/0.9)] text-primary-foreground hover:from-[hsl(var(--primary)/0.9)] hover:to-[hsl(var(--primary)/0.8)] shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-6 py-3 font-semibold;
+    }
+
+    .btn-royal-outline {
+      @apply border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 rounded-xl px-6 py-3 font-semibold;
+    }
+
+    /* Royal Card - from front them/src/index.css */
+    .card-royal {
+      @apply bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300;
+    }
+    .card-royal-header {
+      @apply py-3 px-4 border-b border-border; /* Basic card header */
+    }
+    .card-royal-body {
+        @apply p-4;
+    }
+    .card-royal-footer {
+        @apply py-3 px-4 border-t border-border;
+    }
+
+    /* Ornamental Border - from front them/src/index.css */
+    .ornament-border::before {
+      content: '';
+      @apply absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-30;
+    }
+
+    /* Royal Text Gradient - from front them/src/index.css */
+    .text-royal-gradient {
+      background: linear-gradient(135deg, hsl(var(--royal-gold)), hsl(var(--royal-gold-light)));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; /* Standard property */
+    }
+
+    /* Elegant Animations - from front them/src/index.css */
+    .hover-lift {
+      @apply transition-transform duration-300 hover:-translate-y-1;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Additional global styles or overrides for Blade views can go here */
+    /* For example, styling for Laravel pagination or validation errors if needed beyond Tailwind Forms plugin */
+  }
+
+  /* Styles from front them/src/App.css that might be globally relevant (simplified) */
+  /* Most of App.css was specific to its React structure, these are more general */
   body {
-    @apply bg-background text-foreground;
-    font-family: theme('fontFamily.sans'); /* Use Tailwind config for sans font */
+    margin: 0;
+    /* display: flex; remove this, it's for React root */
+    /* place-items: center; remove this */
+    min-width: 320px;
+    min-height: 100vh;
   }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: theme('fontFamily.serif'); /* Use Tailwind config for serif font */
-    font-weight: 600; /* As per front them/src/index.css */
+  #app { /* Assuming Laravel's main div is #app if using Vue/React, or just general body context */
+    /* max-width: 1280px; remove this, handle via container class */
+    margin: 0 auto;
+    /* padding: 2rem; remove this, handle via layout specific padding */
+    /* text-align: center; remove this, handle per component */
   }
-}
-
-@layer components {
-  /* Royal Button Variants - from front them/src/index.css */
-  .btn-royal {
-    @apply bg-gradient-to-r from-primary to-[hsl(var(--primary)/0.9)] text-primary-foreground hover:from-[hsl(var(--primary)/0.9)] hover:to-[hsl(var(--primary)/0.8)] shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-6 py-3 font-semibold;
-  }
-
-  .btn-royal-outline {
-    @apply border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 rounded-xl px-6 py-3 font-semibold;
-  }
-
-  /* Royal Card - from front them/src/index.css */
-  .card-royal {
-    @apply bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300;
-  }
-  .card-royal-header {
-     @apply py-3 px-4 border-b border-border; /* Basic card header */
-  }
-  .card-royal-body {
-      @apply p-4;
-  }
-  .card-royal-footer {
-      @apply py-3 px-4 border-t border-border;
-  }
-
-  /* Ornamental Border - from front them/src/index.css */
-  .ornament-border::before {
-    content: '';
-    @apply absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-30;
-  }
-
-  /* Royal Text Gradient - from front them/src/index.css */
-  .text-royal-gradient {
-    background: linear-gradient(135deg, hsl(var(--royal-gold)), hsl(var(--royal-gold-light)));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text; /* Standard property */
-  }
-
-  /* Elegant Animations - from front them/src/index.css */
-  .hover-lift {
-    @apply transition-transform duration-300 hover:-translate-y-1;
-  }
-
-  .fade-in {
-    animation: fadeIn 0.8s ease-out forwards;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Additional global styles or overrides for Blade views can go here */
-  /* For example, styling for Laravel pagination or validation errors if needed beyond Tailwind Forms plugin */
-}
-
-/* Styles from front them/src/App.css that might be globally relevant (simplified) */
-/* Most of App.css was specific to its React structure, these are more general */
-body {
-  margin: 0;
-  /* display: flex; remove this, it's for React root */
-  /* place-items: center; remove this */
-  min-width: 320px;
-  min-height: 100vh;
-}
-#app { /* Assuming Laravel's main div is #app if using Vue/React, or just general body context */
-  /* max-width: 1280px; remove this, handle via container class */
-  margin: 0 auto;
-  /* padding: 2rem; remove this, handle via layout specific padding */
-  /* text-align: center; remove this, handle per component */
-}
