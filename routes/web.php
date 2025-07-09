@@ -6,6 +6,8 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\SearchController; // Added SearchController
+use App\Http\Controllers\DashboardController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -38,7 +40,7 @@ Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.st
 Route::get('/booking/confirmation', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
 
 // Admin Dashboard
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']) // Added 'admin' middleware
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified']) // Added 'admin' middleware
     ->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
