@@ -23,14 +23,20 @@ class Booking extends Model
      */
     protected $fillable = [
         'service_id',
-        'user_id', // The user who made the booking
-        'event_date',
-        'qty', // Quantity or number of units (e.g., hours, guests)
-        'total', // Total price for the booking
-        'status', // e.g., 'pending', 'confirmed', 'cancelled', 'completed'
-        'message', // Optional message from user during booking
-        // You might add vendor_id here if you want a direct link,
-        // though it can be derived via service->vendor
+        'user_id', // The user who made the booking (can be null for guest bookings)
+        'customer_name',
+        'customer_email',
+        'customer_phone',
+        'booking_date', // Changed from event_date
+        'time_slot',    // Optional
+        'guests',       // Number of guests/participants
+        'total_amount', // Changed from total
+        'status',       // e.g., 'pending', 'confirmed', 'cancelled', 'completed', 'paid', 'unpaid'
+        'payment_status',
+        'transaction_id', // If integrating with a payment gateway
+        'message',
+        'cancellation_reason',
+        'cancelled_by', // 'user', 'vendor', 'admin'
     ];
 
     /**
@@ -39,10 +45,17 @@ class Booking extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'event_date' => 'datetime',
-        'qty' => 'integer',
-        'total' => 'decimal:2',
+        'booking_date' => 'datetime',
+        'guests' => 'integer',
+        'total_amount' => 'decimal:2',
     ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['booking_date']; // Ensures booking_date is a Carbon instance
 
     /**
      * Get the service that was booked.
@@ -58,6 +71,26 @@ class Booking extends Model
     public function user()
     {
         return $this->belongsTo(User::class); // Assumes User model exists
+    }
+
+    /**
+     * Get the vendor for this booking through the service.
+     */
+    public function vendor()
+    {
+        // This returns the Vendor model instance directly via the service
+        return $this->service ? $this->service->vendor : null;
+    }
+
+    /**
+     * Accessor to get the vendor model instance directly.
+     * Allows $booking->vendor_instance or similar if needed to avoid conflict with a potential vendor_id column.
+     * For direct $booking->vendor access, ensure no 'vendor_id' column on bookings table or rename this.
+     * Given no vendor_id on bookings, this accessor could be getVendorAttribute().
+     */
+    public function getVendorInstanceAttribute()
+    {
+        return $this->service ? $this->service->vendor : null;
     }
 
     // Optional: Scope for bookings with a certain status

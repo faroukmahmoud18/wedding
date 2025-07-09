@@ -28,15 +28,16 @@ class Vendor extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'logo', // File path for the logo
-        'about',
-        'phone',
-        'email',
+        'contact_email',
+        'phone_number',
+        'logo_path',
+        'description',
         'address',
         'city',
         'country',
         'is_approved',
         'is_suspended',
+        'suspension_reason',
     ];
 
     /**
@@ -94,11 +95,19 @@ class Vendor extends Model
      */
     public function getLogoUrlAttribute(): ?string
     {
-        if ($this->logo && Storage::disk('public')->exists($this->logo)) {
-            return Storage::disk('public')->url($this->logo);
+        if ($this->logo_path && Storage::disk('public')->exists($this->logo_path)) {
+            return Storage::disk('public')->url($this->logo_path);
         }
         // Return a default placeholder if no logo or logo not found
         // Consider a more thematically appropriate placeholder
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=7F9CF5&background=EBF4FF';
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=795548&background=E1C699'; // Theme colors
+    }
+
+    /**
+     * Scope a query to only include suspended vendors.
+     */
+    public function scopeSuspended(Builder $query): Builder
+    {
+        return $query->where('is_suspended', true);
     }
 }

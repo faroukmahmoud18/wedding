@@ -28,18 +28,19 @@ class Service extends Model
      */
     protected $fillable = [
         'vendor_id',
-        'category',
+        'category_id', // Changed from 'category'
         'title',
         'slug',
         'short_desc',
-        'long_desc',
-        'price_from',
-        'price_to',
-        'unit',
-        'is_active', // Vendor/Admin can toggle this
+        'description', // Changed from 'long_desc'
+        'price',       // Changed from 'price_from', removed 'price_to'
+        'price_unit',  // Changed from 'unit'
+        'is_live',     // Changed from 'is_active'
         'location_text',
-        'tags', // Stored as JSON array
-        'status', // 'draft', 'pending_approval', 'approved', 'rejected', 'inactive'
+        'tags',
+        'status',      // e.g., 'pending_approval', 'approved', 'rejected', 'on_hold'
+        'rejection_reason',
+        'featured_image_path',
     ];
 
     /**
@@ -48,10 +49,9 @@ class Service extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'is_active' => 'boolean',
-        'price_from' => 'decimal:2',
-        'price_to' => 'decimal:2',
-        'tags' => 'array', // Cast JSON 'tags' to array
+        'is_live' => 'boolean',
+        'price' => 'decimal:2',
+        'tags' => 'array',
     ];
 
     /**
@@ -96,19 +96,24 @@ class Service extends Model
     }
 
     /**
-     * Get the images for the service.
+     * Get the category for the service.
      */
-    public function images(): HasMany
+    public function category(): BelongsTo
     {
-        return $this->hasMany(Image::class);
+        return $this->belongsTo(Category::class);
     }
 
     /**
-     * Get the metadata for the service.
+     * Get the images for the service.
+     * Assuming a ServiceImage model for additional images.
+     * If only one featured image, this might not be needed or structured differently.
      */
-    public function serviceMeta(): HasMany
+    public function images(): HasMany
     {
-        return $this->hasMany(ServiceMeta::class);
+        // If you have a dedicated ServiceImage model:
+        // return $this->hasMany(ServiceImage::class);
+        // If using a generic Image model with polymorphic relations or simple FK:
+        return $this->hasMany(Image::class); // Keep as is if Image model is generic for now
     }
 
     /**
@@ -133,7 +138,15 @@ class Service extends Model
      */
     public function scopeLive(Builder $query): Builder
     {
-        return $query->where('is_active', true)->where('status', 'approved');
+        return $query->where('is_live', true)->where('status', 'approved');
+    }
+
+    /**
+     * Scope a query to only include services that are approved.
+     */
+    public function scopeApproved(Builder $query): Builder
+    {
+        return $query->where('status', 'approved');
     }
 
     /**
@@ -160,12 +173,11 @@ class Service extends Model
      */
     public function getFeaturedImageUrlAttribute(): ?string
     {
-        $firstImage = $this->images()->first();
-        if ($firstImage && $firstImage->path && Storage::disk('public')->exists($firstImage->path)) {
-            return Storage::disk('public')->url($firstImage->path);
+        if ($this->featured_image_path && Storage::disk('public')->exists($this->featured_image_path)) {
+            return Storage::disk('public')->url($this->featured_image_path);
         }
-        // Fallback placeholder
-        return 'https://via.placeholder.com/300x200.png?text=' . urlencode($this->title);
+        // Fallback placeholder using theme colors
+        return 'https://ui-avatars.com/api/?name=' . urlencode(Str::limit($this->title, 2, '')) . '&size=300x200&color=FFFFFF&background=E1C699&bold=true&format=png&font-size=0.33&text=' . urlencode($this->title);
     }
 
     /**
@@ -174,6 +186,25 @@ class Service extends Model
      */
     public function getCategoryNameAttribute(): string
     {
-        return Str::title(str_replace('_', ' ', $this->category));
+        return $this->category->name ?? __('N/A');
+    }
+
+    /**
+     * Calculate the average rating for the service.
+     *
+     * @return float
+     */
+    public function averageRating(): float
+    {
+        return $this->reviews()->approved()->average('rating') ?? 0.0;
+    }
+
+    /**
+     * Get the average rating attribute.
+     * Accessor: getAverageRatingAttribute
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return $this->averageRating();
     }
 }
